@@ -1,5 +1,5 @@
 // ============================================================
-// CSIS 3740 – Project 3 (Advanced): MARIE Simulator
+// CSIS 3740 – Project 3 (Advanced): MARIE Simulator (Bonus Version)
 // Author: Aayush Kumar Singh
 // Description:
 //   CPU simulator for the MARIE architecture.
@@ -8,6 +8,8 @@
 //   ✅ SKIPCOND control logic
 //   ✅ CLEAR (extra instruction)
 //   ✅ Trace table with register output
+//   ✅ Instruction execution count summary (Bonus)
+//   ✅ Memory dump (Bonus)
 // ============================================================
 
 #include <iostream>
@@ -92,12 +94,7 @@ struct Marie {
             case 0x9: icount["JUMP"]++;  PC = adr; break;
 
             // ---------------------------
-            // ✅ NEW SECTION: SKIPCOND (Phase A)
-            // Uses bits 11–9 as condition field:
-            //   000 -> AC < 0
-            //   400 -> AC == 0
-            //   800 -> AC > 0
-            // If true, PC = PC + 1 (skip next instruction)
+            // ✅ NEW SECTION: SKIPCOND
             // ---------------------------
             case 0x8: {
                 icount["SKIPCOND"]++;
@@ -111,8 +108,7 @@ struct Marie {
             }
 
             // ---------------------------
-            // ✅ NEW SECTION: CLEAR (extra instruction, opcode 0xB)
-            // Behavior: AC ← 0
+            // ✅ NEW SECTION: CLEAR (extra instruction)
             // ---------------------------
             case 0xB:
                 icount["CLEAR"]++;
@@ -128,14 +124,40 @@ struct Marie {
         return cont;
     }
 
-    // ---------------------------
+    // ============================================================
+    // BONUS FEATURE 1: Instruction count summary
+    // ============================================================
+    void printInstructionSummary() {
+        cout << "\nInstruction Execution Counts:\n";
+        cout << "---------------------------------\n";
+        for (auto &p : icount) {
+            cout << setw(10) << left << p.first << " : " << p.second << "\n";
+        }
+    }
+
+    // ============================================================
+    // BONUS FEATURE 2: Memory dump (first 32 addresses)
+    // ============================================================
+    void printMemoryDump(int maxCells = 32) {
+        cout << "\nMemory Dump (first " << maxCells << " addresses):\n";
+        cout << "---------------------------------\n";
+        for (int i = 0; i < maxCells; i++) {
+            cout << HEX4(i) << ": " << HEX4(MEM[i]) << "\n";
+        }
+    }
+
+    // ============================================================
     // Run full program
-    // ---------------------------
+    // ============================================================
     void run() {
         uint64_t cyc = 1;
         cout << "Cycle | PC   IR   AC    MAR  MBR\n---------------------------------\n";
         while (step(cyc++)) { if (cyc > 1000000) break; }
         cout << "Program halted.\n";
+
+        // Print bonus summaries
+        printInstructionSummary();
+        printMemoryDump(20); // show first 20 memory cells
     }
 };
 
